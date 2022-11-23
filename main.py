@@ -65,7 +65,8 @@ class QuestionWindow(QWidget):
         self.q_label = QLabel(self)
         self.q_label.setText(q)
         self.q_label.setWordWrap(True)
-        self.q_label.
+        self.q_label.move(370, 320)
+        self.q_label.setFixedSize(500, 300)
 
 
 if __name__ == '__main__':
