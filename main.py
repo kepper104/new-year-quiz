@@ -7,7 +7,7 @@ from PyQt5.QtWidgets import QApplication, QMainWindow
 class App(QMainWindow):
     def __init__(self):
         super().__init__()
-        uic.loadUi('untitled.ui', self)
+        uic.loadUi('design.ui', self)
         self.pushButton.clicked.connect(self.bruh)
 
     def bruh(self):
