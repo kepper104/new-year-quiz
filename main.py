@@ -12,12 +12,22 @@ rubrics = ["История Нового Года", "Снеговики", "Нов
 class App(QMainWindow):
     def __init__(self):
         super().__init__()
+
+        use_bg_image = False
+        show_window_borders = False
+        if use_bg_image:
+            self.bg_label = QLabel(self)
+            self.bg_label.setPixmap(QPixmap("bg-main.png"))
+            self.bg_label.setFixedSize(1513, 710)
+            self.bg_label.move(0, 0)
+
         uic.loadUi('design.ui', self)
         self.setWindowTitle("Новый Год 2023")
         self.setGeometry(300, 300, 1513, 710)
 
-        self.verticalLayout.setContentsMargins(0, 0, 0, 0)
-        self.setWindowFlag(Qt.FramelessWindowHint)
+        if not show_window_borders:
+            self.verticalLayout.setContentsMargins(0, 0, 0, 0)
+            self.setWindowFlag(Qt.FramelessWindowHint)
 
         for i in self.buttonGroup.buttons():
             i.clicked.connect(self.bruh)
@@ -62,6 +72,28 @@ class QuestionWindow(QWidget):
         self.label_2.setText(real_rubric)
 
         self.pushButton.clicked.connect(self.close)
+
+    # def load_answer(self):
+
+        # class AnswerWindow(QWidget):
+        #     def __init__(self, *args, q="q-Error", a='a-Error', p='Error', r="Error"):
+        #         super().__init__()
+        #         uic.loadUi("question.ui", self)
+        #         self.setGeometry(300, 300, 1513, 710)
+        #         self.setWindowTitle('Вопрос')
+        #         print(p, r, q, a)
+        #         self.verticalLayout.setContentsMargins(0, 0, 0, 0)
+        #         self.setWindowFlag(Qt.FramelessWindowHint)
+
+        #         self.label_3.setText(
+        #             f"""<html><head/><body><p align="center"><span style=" font-size:26pt; color:#5e9ad7;">{q}</span></p></body></html>""")
+
+        #         real_rubric = """<html><head/><body><p align="center"><span style=" font-size:28pt; color:#e88a2c;">""" + \
+        #             r + " " + p + """</span></p></body></html>"""
+
+        #         self.label_2.setText(real_rubric)
+
+        #         self.pushButton.clicked.connect(self.close)
 
 
 if __name__ == '__main__':
