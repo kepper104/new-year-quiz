@@ -8,6 +8,11 @@ from playsound import playsound
 from threading import Thread
 from os import getcwd
 from os import path
+import pygame
+
+# import playsound
+
+
 rubrics = ["История Нового Года", "Снеговики", "Новогодние Блюда",
            "Цитаты из фильмов", "Новый Год до Революции", "Dead Мороз", "Загадки", "Новый Год в Других Странах"]
 
@@ -21,14 +26,33 @@ if hasattr(Qt, 'AA_UseHighDpiPixmaps'):
 
 all_music = []
 def playMusic(file_name):
-    cwd = getcwd()
-    audio_file = path.join(cwd, "music", file_name)
-    audio_file = audio_file.replace("\\", " /").replace(" ", "")
-    all_music.append(Thread(target=playsound, args=(audio_file,)))
+    sound = SoundPlayer(file_name)
+    all_music.append(Thread(target=sound.play_sound, args=()))
     all_music[-1].start()
 
+def killAllMusic():
+    for i in all_music:
+        i.stop()
+
+class SoundPlayer():
+    def __init__(self, file_name):
+        self.name = file_name
+    def play_sound(self):
+
+        cwd = getcwd()
+        audio_file = path.join(cwd, "music", self.name)
+        audio_file = audio_file.replace("\\", " /").replace(" ", "")
+
+        pygame.mixer.music.load(audio_file)
+
+        pygame.mixer.music.play(1)
+
+        while True:
+            pygame.time.Clock().tick(10)
 class App(QMainWindow):
     def __init__(self):
+        pygame.init()
+        pygame.mixer.init()
         super().__init__()
 
         # USEFUL STUFF
