@@ -3,14 +3,19 @@ import csv
 from PyQt5 import uic
 from PyQt5.QtWidgets import QApplication, QMainWindow, QWidget, QLabel, QVBoxLayout
 from PyQt5.QtGui import QPixmap, QPalette
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, QTimer
 from threading import Thread
 from os import getcwd
 from os import path
+from time import sleep
 import matplotlib.pyplot as plt
 import pygame
 
+# ALSO USEFUL
+# -----------------------------------------|
 team_count = 3
+# -----------------------------------------|
+
 opened_questions = 0
 cur_team = 0
 points = {}
@@ -32,18 +37,20 @@ if hasattr(Qt, 'AA_UseHighDpiPixmaps'):
 all_music = []
 
 
-def playMusic(file_name):
-    sound = SoundPlayer(file_name)
+def playMusic(file_name, delay=0):
+    sound = SoundPlayer(file_name,delay)
     all_music.append(Thread(target=sound.play_sound, args=()))
     all_music[-1].start()
 
 
 
 class SoundPlayer():
-    def __init__(self, file_name):
+    def __init__(self, file_name, delay=0):
         self.name = file_name
+        self.delay = delay
 
     def play_sound(self):
+        sleep(self.delay)
         cwd = getcwd()
         audio_file = path.join(cwd, "music", self.name)
         audio_file = audio_file.replace("\\", " /").replace(" ", "")
@@ -61,12 +68,11 @@ class App(QMainWindow):
         super().__init__()
 
         # USEFUL STUFF
-        # ------------------------------
+        # ------------------------------|
         use_bg_image = False
         show_window_borders = True
-        # ------------------------------
+        # ------------------------------|
 
-        # playsound("Ra-ta-ta.mp3")
 
         if use_bg_image:
             self.bg_label = QLabel(self)
@@ -76,7 +82,6 @@ class App(QMainWindow):
 
         uic.loadUi('design.ui', self)
         self.setWindowTitle("Новый Год 2023")
-        # self.setGeometry(300, 300, 1513, 710)
 
         if not show_window_borders:
             self.verticalLayout.setContentsMargins(0, 0, 0, 0)
@@ -84,7 +89,6 @@ class App(QMainWindow):
 
         for i in self.buttonGroup.buttons():
             i.clicked.connect(self.bruh)
-        # self.pushButton.clicked.connect(self.open_question_window)
 
     def bruh(self):
         cost = self.sender().text()
@@ -102,7 +106,11 @@ class App(QMainWindow):
             self.music_pause("alice_pause2.mp3")
         elif id // 10 == 6:
             self.read_music(id // 10, cost)
+        elif id // 10 == 0:
+            playMusic("blackboxmusic.mp3")
+            self.read_csv(id // 10, cost)
         else:
+            playMusic("next.mp3")
             self.read_csv(id // 10, cost)
 
     def music_pause(self, music_name):
@@ -113,7 +121,6 @@ class App(QMainWindow):
         self.window.show()
 
     def read_csv(self, file_id, cost):
-        playMusic("next.mp3")
         with open(f"{file_id}.csv", 'r', encoding='utf-8') as file:
             res = csv.reader(file, delimiter=';', quotechar='"')
             for i in res:
@@ -125,6 +132,7 @@ class App(QMainWindow):
                         self, q=i[1], a=i[2], p=i[0], r=rubrics[file_id], pos=(x, y))
                     self.window.show()
     def read_music(self, file_id, cost):
+
         with open(f"{file_id}.csv", 'r', encoding='utf-8') as file:
             res = csv.reader(file, delimiter=';', quotechar='"')
             for i in res:
@@ -132,11 +140,12 @@ class App(QMainWindow):
                     q = i[1]
                     file_name = i[2]
                     a = i[3]
+                    playMusic(file_name, 5)
                     print(q, file_name, a)
                     x = self.geometry().x()
                     y = self.geometry().y()
                     self.window = QuestionWindow(
-                        self, q=i[1], a=i[2], p=i[0], r=rubrics[file_id], pos=(x, y))
+                        self, q=i[1], a=i[3], p=i[0], r=rubrics[file_id], pos=(x, y))
                     self.window.show()
     def keyPressEvent(self, event):
         if event.key() == 90:
