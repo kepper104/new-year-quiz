@@ -2,7 +2,7 @@ import sys
 import csv
 from PyQt5 import uic
 from PyQt5.QtWidgets import QApplication, QMainWindow, QWidget, QLabel, QVBoxLayout
-from PyQt5.QtGui import QPixmap
+from PyQt5.QtGui import QPixmap, QPalette
 from PyQt5.QtCore import Qt
 from threading import Thread
 from os import getcwd
@@ -10,10 +10,9 @@ from os import path
 import matplotlib.pyplot as plt
 import pygame
 
-# import playsound
 team_count = 3
-
-cur_team = 1
+opened_questions = 0
+cur_team = 0
 points = {}
 for i in range(1, team_count + 1):
     points[i] = 0
@@ -39,23 +38,16 @@ def playMusic(file_name):
     all_music[-1].start()
 
 
-def killAllMusic():
-    for i in all_music:
-        i.stop()
-
 
 class SoundPlayer():
     def __init__(self, file_name):
         self.name = file_name
 
     def play_sound(self):
-
         cwd = getcwd()
         audio_file = path.join(cwd, "music", self.name)
         audio_file = audio_file.replace("\\", " /").replace(" ", "")
-
         pygame.mixer.music.load(audio_file)
-
         pygame.mixer.music.play(1)
 
         while True:
@@ -95,7 +87,6 @@ class App(QMainWindow):
         # self.pushButton.clicked.connect(self.open_question_window)
 
     def bruh(self):
-
         cost = self.sender().text()
         print(cost)
         # self.sender().setParent(None)
@@ -110,7 +101,7 @@ class App(QMainWindow):
         elif id == 42:
             self.music_pause("alice_pause2.mp3")
         elif id // 10 == 6:
-            self.read_music(id)
+            self.read_music(id // 10, cost)
         else:
             self.read_csv(id // 10, cost)
 
@@ -133,25 +124,46 @@ class App(QMainWindow):
                     self.window = QuestionWindow(
                         self, q=i[1], a=i[2], p=i[0], r=rubrics[file_id], pos=(x, y))
                     self.window.show()
-                # print(i)
-    # def read_music(self, file_id):
-
-
+    def read_music(self, file_id, cost):
+        with open(f"{file_id}.csv", 'r', encoding='utf-8') as file:
+            res = csv.reader(file, delimiter=';', quotechar='"')
+            for i in res:
+                if i[0] == cost:
+                    q = i[1]
+                    file_name = i[2]
+                    a = i[3]
+                    print(q, file_name, a)
+                    x = self.geometry().x()
+                    y = self.geometry().y()
+                    self.window = QuestionWindow(
+                        self, q=i[1], a=i[2], p=i[0], r=rubrics[file_id], pos=(x, y))
+                    self.window.show()
+    def keyPressEvent(self, event):
+        if event.key() == 90:
+            plot_histogram()
+            self.close()
 class QuestionWindow(QWidget):
-    def __init__(self, *args, q="Музыкальная пауза", a='a-Error', p='', r="", pos=(0, 0), isMusic=False, music_name=''):
+    def __init__(self, *args, q="Музыкальная пауза", a='', p='', r="", pos=(0, 0), isMusic=False, music_name=''):
         super().__init__()
         uic.loadUi("question.ui", self)
         print(pos)
-        self.setGeometry(pos[0], pos[1], 1513, 710)
+        # self.setStyleSheet("background-color: red;")
+        self.setGeometry(pos[0], pos[1], 1756, 835)
         self.setWindowTitle('Вопрос')
         self.question = q
         self.answer = a
         self.price = p
         self.rubric = r
         self.shownAns = False
-        self.showBorder = True
+        self.showBorder = False
         self.isMusic = isMusic
         self.music_name = music_name
+        self.setAutoFillBackground(True)
+
+        palette = QPalette()
+        palette.setColor(QPalette.Background, Qt.black)
+        self.setPalette(palette)
+
         print(p, r, q, a, pos, isMusic, music_name)
 
         if not self.showBorder:
@@ -186,12 +198,15 @@ class QuestionWindow(QWidget):
         elif event.key() == 89:
             points[cur_team + 1] += int(self.price)
             plot_histogram((cur_team + 1, self.price))
+            print(cur_team)
+
             cur_team += 1
-            cur_team //= 3
+            cur_team %= 3
+            print(cur_team)
         elif event.key() == 78:
             plot_histogram()
             cur_team += 1
-            cur_team //= 3
+            cur_team %= 3
 
 
 # 89 Y
