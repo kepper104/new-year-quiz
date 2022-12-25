@@ -6,16 +6,19 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1513</width>
-    <height>710</height>
+    <width>1756</width>
+    <height>835</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Form</string>
   </property>
+  <property name="autoFillBackground">
+   <bool>false</bool>
+  </property>
   <property name="styleSheet">
    <string notr="true">QLabel {color: rgb(48, 48, 48)}
-</string>
+background-color: rgb(0, 0, 0);</string>
   </property>
   <widget class="QLabel" name="label">
    <property name="geometry">

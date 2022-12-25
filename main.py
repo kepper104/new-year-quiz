@@ -6,6 +6,8 @@ from PyQt5.QtGui import QPixmap
 from PyQt5.QtCore import Qt
 from playsound import playsound
 from threading import Thread
+from os import getcwd
+from os import path
 rubrics = ["История Нового Года", "Снеговики", "Новогодние Блюда",
            "Цитаты из фильмов", "Новый Год до Революции", "Dead Мороз", "Загадки", "Новый Год в Других Странах"]
 
@@ -17,15 +19,29 @@ if hasattr(Qt, 'AA_EnableHighDpiScaling'):
 if hasattr(Qt, 'AA_UseHighDpiPixmaps'):
     QApplication.setAttribute(Qt.AA_UseHighDpiPixmaps, True)
 
+all_music = []
+def playMusic(file_name):
+    cwd = getcwd()
+    audio_file = path.join(cwd, "music", file_name)
+    audio_file = audio_file.replace("\\", " /").replace(" ", "")
+    all_music.append(Thread(target=playsound, args=(audio_file,)))
+    all_music[-1].start()
 
 class App(QMainWindow):
     def __init__(self):
         super().__init__()
 
-        # playsound("Ra-ta-ta.mp3")
-
+        # USEFUL STUFF
+        # ------------------------------
+        self.team_count = 3
         use_bg_image = False
         show_window_borders = True
+        # ------------------------------
+
+
+        # playsound("Ra-ta-ta.mp3")
+        self.cur_team = 0
+
         if use_bg_image:
             self.bg_label = QLabel(self)
             self.bg_label.setPixmap(QPixmap("bg-main.png"))
@@ -61,31 +77,44 @@ class App(QMainWindow):
             self.read_csv(id // 10, cost)
 
     def read_csv(self, file_id, cost):
+        playMusic("next.mp3")
         with open(f"{file_id}.csv", 'r', encoding='utf-8') as file:
             res = csv.reader(file, delimiter=';', quotechar='"')
             for i in res:
                 if i[0] == cost:
-                    self.window = QuestionWindow(
-                        self, q=i[1], a=i[2], p=i[0], r=rubrics[file_id])
-                    self.window.show()
+                    if i[1] == '0':
+                        # music = Thread(playsound, args=(i[2], ))
+
+                        print("MUSIC TIME")
+                    else:
+                        x = self.geometry().x()
+                        y = self.geometry().y()
+                        # print(self.geometry())
+                        self.window = QuestionWindow(
+                            self, q=i[1], a=i[2], p=i[0], r=rubrics[file_id], pos=(x, y))
+                        self.window.show()
                     # print(i)
     def read_music(self, file_id):
         print(file_id)
 
 class QuestionWindow(QWidget):
-    def __init__(self, *args, q="q-Error", a='a-Error', p='Error', r="Error"):
+    def __init__(self, *args, q="q-Error", a='a-Error', p='Error', r="Error", pos=(0, 0)):
         super().__init__()
         uic.loadUi("question.ui", self)
-        self.setGeometry(300, 300, 1513, 710)
+        print(pos)
+        self.setGeometry(pos[0], pos[1], 1513, 710)
         self.setWindowTitle('Вопрос')
         self.question = q
         self.answer = a
         self.price = p
         self.rubric = r
         self.shownAns = False
+        self.showBorder = True
         print(p, r, q, a)
-        self.verticalLayout.setContentsMargins(0, 0, 0, 0)
-        self.setWindowFlag(Qt.FramelessWindowHint)
+
+        if not self.showBorder:
+            self.verticalLayout.setContentsMargins(0, 0, 0, 0)
+            self.setWindowFlag(Qt.FramelessWindowHint)
 
         self.label_3.setText(
             f"""<html><head/><body><p align="center"><span style=" font-size:26pt; color:#5e9ad7;">{q}</span></p></body></html>""")
@@ -95,11 +124,10 @@ class QuestionWindow(QWidget):
 
         self.label_2.setText(real_rubric)
 
-        # self.pushButton.clicked.connect(self.close)
     def showAnswer(self):
         self.label_3.setText(
             f"""<html><head/><body><p align="center"><span style=" font-size:26pt; color:#5e9ad7;">{self.answer}</span></p></body></html>""")
-        # self.close()
+
     def keyPressEvent(self, event):
         print(event.key())
         if event.key() == 16777220:
