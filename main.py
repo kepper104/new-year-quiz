@@ -4,10 +4,10 @@ from PyQt5 import uic
 from PyQt5.QtWidgets import QApplication, QMainWindow, QWidget, QLabel, QVBoxLayout
 from PyQt5.QtGui import QPixmap
 from PyQt5.QtCore import Qt
-from playsound import playsound
 from threading import Thread
 from os import getcwd
 from os import path
+import matplotlib
 import pygame
 
 # import playsound
@@ -95,34 +95,36 @@ class App(QMainWindow):
 
         id = int(self.sender().objectName().split('_')[1])
         # print(id, cost)
-        if id // 10 == 6:
+        if id == 65:
+            self.music_pause("alice_pause1.mp3")
+        elif id == 42:
+            self.music_pause("alice_pause2.mp3")
+        elif id // 10 == 6:
             self.read_music(id)
         else:
             self.read_csv(id // 10, cost)
-
+    def music_pause(self, music_name):
+        x = self.geometry().x()
+        y = self.geometry().y()
+        self.window = QuestionWindow(self, pos=(x, y), isMusic=True, music_name=music_name)
+        self.window.show()
     def read_csv(self, file_id, cost):
         playMusic("next.mp3")
         with open(f"{file_id}.csv", 'r', encoding='utf-8') as file:
             res = csv.reader(file, delimiter=';', quotechar='"')
             for i in res:
                 if i[0] == cost:
-                    if i[1] == '0':
-                        # music = Thread(playsound, args=(i[2], ))
-
-                        print("MUSIC TIME")
-                    else:
-                        x = self.geometry().x()
-                        y = self.geometry().y()
-                        # print(self.geometry())
-                        self.window = QuestionWindow(
-                            self, q=i[1], a=i[2], p=i[0], r=rubrics[file_id], pos=(x, y))
-                        self.window.show()
-                    # print(i)
-    def read_music(self, file_id):
-        print(file_id)
+                    x = self.geometry().x()
+                    y = self.geometry().y()
+                    # print(self.geometry())
+                    self.window = QuestionWindow(
+                        self, q=i[1], a=i[2], p=i[0], r=rubrics[file_id], pos=(x, y))
+                    self.window.show()
+                # print(i)
+    # def read_music(self, file_id):
 
 class QuestionWindow(QWidget):
-    def __init__(self, *args, q="q-Error", a='a-Error', p='Error', r="Error", pos=(0, 0)):
+    def __init__(self, *args, q="Музыкальная пауза", a='a-Error', p='', r="", pos=(0, 0), isMusic=False, music_name=''):
         super().__init__()
         uic.loadUi("question.ui", self)
         print(pos)
@@ -134,7 +136,9 @@ class QuestionWindow(QWidget):
         self.rubric = r
         self.shownAns = False
         self.showBorder = True
-        print(p, r, q, a)
+        self.isMusic = isMusic
+        self.music_name = music_name
+        print(p, r, q, a, pos, isMusic, music_name)
 
         if not self.showBorder:
             self.verticalLayout.setContentsMargins(0, 0, 0, 0)
@@ -147,7 +151,7 @@ class QuestionWindow(QWidget):
             r + " " + p + """</span></p></body></html>"""
 
         self.label_2.setText(real_rubric)
-
+        print("help")
     def showAnswer(self):
         self.label_3.setText(
             f"""<html><head/><body><p align="center"><span style=" font-size:26pt; color:#5e9ad7;">{self.answer}</span></p></body></html>""")
@@ -156,34 +160,15 @@ class QuestionWindow(QWidget):
         print(event.key())
         if event.key() == 16777220:
             if not self.shownAns:
-                print("showing")
+                if self.isMusic:
+                    playMusic(self.music_name)
+                else:
+                    print("showing")
+                    self.showAnswer()
                 self.shownAns = True
-                self.showAnswer()
+
             else:
                 self.close()
-
-    # def load_answer(self):
-
-        # class AnswerWindow(QWidget):
-        #     def __init__(self, *args, q="q-Error", a='a-Error', p='Error', r="Error"):
-        #         super().__init__()
-        #         uic.loadUi("question.ui", self)
-        #         self.setGeometry(300, 300, 1513, 710)
-        #         self.setWindowTitle('Вопрос')
-        #         print(p, r, q, a)
-        #         self.verticalLayout.setContentsMargins(0, 0, 0, 0)
-        #         self.setWindowFlag(Qt.FramelessWindowHint)
-
-        #         self.label_3.setText(
-        #             f"""<html><head/><body><p align="center"><span style=" font-size:26pt; color:#5e9ad7;">{q}</span></p></body></html>""")
-
-        #         real_rubric = """<html><head/><body><p align="center"><span style=" font-size:28pt; color:#e88a2c;">""" + \
-        #             r + " " + p + """</span></p></body></html>"""
-
-        #         self.label_2.setText(real_rubric)
-
-        #         self.pushButton.clicked.connect(self.close)
-
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
