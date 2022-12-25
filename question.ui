@@ -97,19 +97,6 @@
     <bool>true</bool>
    </property>
   </widget>
-  <widget class="QPushButton" name="pushButton">
-   <property name="geometry">
-    <rect>
-     <x>644</x>
-     <y>572</y>
-     <width>241</width>
-     <height>61</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>Ответ</string>
-   </property>
-  </widget>
  </widget>
  <resources/>
  <connections/>
