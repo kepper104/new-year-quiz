@@ -56,7 +56,6 @@ class SoundPlayer():
         audio_file = audio_file.replace("\\", " /").replace(" ", "")
         pygame.mixer.music.load(audio_file)
         pygame.mixer.music.play(1)
-
         while True:
             pygame.time.Clock().tick(10)
 
@@ -72,7 +71,6 @@ class App(QMainWindow):
         use_bg_image = False
         show_window_borders = True
         # ------------------------------|
-
 
         if use_bg_image:
             self.bg_label = QLabel(self)
@@ -121,7 +119,7 @@ class App(QMainWindow):
         self.window.show()
 
     def read_csv(self, file_id, cost):
-        with open(f"{file_id}.csv", 'r', encoding='utf-8') as file:
+        with open(f"csv/{file_id}.csv", 'r', encoding='utf-8') as file:
             res = csv.reader(file, delimiter=';', quotechar='"')
             for i in res:
                 if i[0] == cost:
@@ -133,7 +131,7 @@ class App(QMainWindow):
                     self.window.show()
     def read_music(self, file_id, cost):
 
-        with open(f"{file_id}.csv", 'r', encoding='utf-8') as file:
+        with open(f"csv/{file_id}.csv", 'r', encoding='utf-8') as file:
             res = csv.reader(file, delimiter=';', quotechar='"')
             for i in res:
                 if i[0] == cost:
@@ -212,10 +210,21 @@ class QuestionWindow(QWidget):
             cur_team += 1
             cur_team %= 3
             print(cur_team)
+
         elif event.key() == 78:
             plot_histogram()
             cur_team += 1
             cur_team %= 3
+
+        elif event.key() - 48 == 1:
+            cur_team = 0
+        elif event.key() - 48 == 2:
+            cur_team = 1
+        elif event.key() - 48 == 3:
+            cur_team = 2
+        elif event.key() - 48 == 4:
+            cur_team = 3
+
 
 
 # 89 Y
@@ -243,12 +252,7 @@ def plot_histogram(last_points=(0, 0)):
     plt.xticks(teams, ["Команда {}".format(i) for i in teams], fontsize=13)
 
     plt.yticks(team_points, fontsize=14)
-    print("before show")
     plt.show()
-    print("shown")
-    # plot_thread = Thread(target=plt.show, args=())
-    # plot_thread.start()
-    # plt.show()
 
     print(points)
 

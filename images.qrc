@@ -1,6 +1,0 @@
-<RCC>
-  <qresource prefix="image-bg">
-    <file>photo_2022-10-19_21-41-27.jpg</file>
-  </qresource>
-  <qresource prefix="newPrefix"/>
-</RCC>
